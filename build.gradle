@@ -1,0 +1,34 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.graalvm.buildtools.native' version '0.10.6'
+}
+
+group = 'com.demo'
+version = '1.0.0'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+application {
+    mainClass = 'com.demo.App'
+}
+
+// Normal IntelliJ/Gradle Run uses JVM + JIT.
+tasks.named('run') {
+    standardInput = System.in
+}
+
+// Native build uses GraalVM Native Image AOT compilation.
+graalvmNative {
+    binaries {
+        main {
+            imageName = 'hello-graalvm'
+            mainClass = 'com.demo.App'
+            quickBuild = false
+        }
+    }
+}
