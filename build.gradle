@@ -17,12 +17,12 @@ application {
     mainClass = 'com.demo.App'
 }
 
-// Normal IntelliJ/Gradle Run uses JVM + JIT.
+// JIT execution: normal JVM run
 tasks.named('run') {
     standardInput = System.in
 }
 
-// Native build uses GraalVM Native Image AOT compilation.
+// AOT native image configuration
 graalvmNative {
     binaries {
         main {
@@ -30,5 +30,35 @@ graalvmNative {
             mainClass = 'com.demo.App'
             quickBuild = false
         }
+    }
+}
+
+// Single AOT task for all operating systems
+tasks.register("runAot", Exec) {
+    group = "application"
+    description = "Builds and runs GraalVM native executable using AOT based on the current OS"
+
+    workingDir = projectDir
+
+    def os = org.gradle.internal.os.OperatingSystem.current()
+
+    if (os.isWindows()) {
+        def windowsScript = file("build-and-run-aot.bat")
+
+        if (!windowsScript.exists()) {
+            throw new GradleException("Windows AOT script not found: ${windowsScript.absolutePath}")
+        }
+
+        commandLine "cmd", "/c", windowsScript.absolutePath
+    } else if (os.isLinux() || os.isMacOsX()) {
+        def unixScript = file("build-and-run-aot.sh")
+
+        if (!unixScript.exists()) {
+            throw new GradleException("Unix AOT script not found: ${unixScript.absolutePath}")
+        }
+
+        commandLine "bash", unixScript.absolutePath
+    } else {
+        throw new GradleException("Unsupported operating system: ${os}")
     }
 }
