@@ -8,57 +8,70 @@ group = 'com.demo'
 version = '1.0.0'
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 application {
     mainClass = 'com.demo.App'
 }
 
-// JIT execution: normal JVM run
+// JIT execution
 tasks.named('run') {
     standardInput = System.in
 }
 
-// AOT native image configuration
+// GraalVM Native Image configuration
 graalvmNative {
     binaries {
         main {
             imageName = 'hello-graalvm'
             mainClass = 'com.demo.App'
+
+            // Faster builds during development
             quickBuild = false
         }
     }
 }
 
-// Single AOT task for all operating systems
+// Single cross-platform AOT task
 tasks.register("runAot", Exec) {
+
     group = "application"
-    description = "Builds and runs GraalVM native executable using AOT based on the current OS"
+    description = "Builds and runs GraalVM Native Image based on the current OS"
 
     workingDir = projectDir
 
     def os = org.gradle.internal.os.OperatingSystem.current()
 
     if (os.isWindows()) {
+
         def windowsScript = file("build-and-run-aot.bat")
 
         if (!windowsScript.exists()) {
-            throw new GradleException("Windows AOT script not found: ${windowsScript.absolutePath}")
+            throw new GradleException(
+                    "Windows AOT script not found: ${windowsScript.absolutePath}"
+            )
         }
 
         commandLine "cmd", "/c", windowsScript.absolutePath
+
     } else if (os.isLinux() || os.isMacOsX()) {
+
         def unixScript = file("build-and-run-aot.sh")
 
         if (!unixScript.exists()) {
-            throw new GradleException("Unix AOT script not found: ${unixScript.absolutePath}")
+            throw new GradleException(
+                    "Unix AOT script not found: ${unixScript.absolutePath}"
+            )
         }
 
         commandLine "bash", unixScript.absolutePath
+
     } else {
-        throw new GradleException("Unsupported operating system: ${os}")
+
+        throw new GradleException(
+                "Unsupported Operating System: ${os}"
+        )
     }
 }
