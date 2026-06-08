@@ -18,7 +18,7 @@ public class App {
         String mode = detectExecutionMode();
 
         System.out.println("===========================================");
-        System.out.println(" Java 17 + Gradle + GraalVM POC");
+        System.out.println(" Java 21 + Gradle + GraalVM POC");
         System.out.println("===========================================");
         System.out.println("Execution Mode : " + mode);
         System.out.println("OS             : " + System.getProperty("os.name"));
