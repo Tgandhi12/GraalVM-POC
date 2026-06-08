@@ -2,7 +2,7 @@
 
 ## Overview
 
-This Proof of Concept (POC) demonstrates the difference between Just-In-Time (JIT) compilation and Ahead-Of-Time (AOT) compilation using Java 17, Gradle, and GraalVM Native Image.
+This Proof of Concept (POC) demonstrates the difference between Just-In-Time (JIT) compilation and Ahead-Of-Time (AOT) compilation using Java 21, Gradle, and GraalVM Native Image.
 
 The project provides two execution modes:
 
@@ -15,9 +15,9 @@ The application executes a CPU-intensive workload consisting of prime number cal
 
 # Tech Stack
 
-* Java 17
+* Java 21+
 * Gradle 9
-* GraalVM JDK 17
+* GraalVM JDK 21+
 * GraalVM Native Image
 * IntelliJ IDEA
 
@@ -68,7 +68,7 @@ hello-graalvm/
 
 Install:
 
-* Java 17 or GraalVM JDK 17
+* Java 21 or GraalVM JDK 21
 
 Gradle installation is NOT required because the project uses Gradle Wrapper.
 
@@ -80,7 +80,7 @@ Install:
 
 ### Common
 
-* GraalVM JDK 17
+* GraalVM JDK 21
 * GraalVM Native Image
 
 ### Windows
@@ -281,7 +281,7 @@ This workload is intentionally CPU-intensive to demonstrate the execution charac
 * Project paths are fully relative and portable.
 * The project can be cloned and executed from any directory.
 * Only GraalVM Native Image and OS-specific native compiler tools are required for AOT compilation.
-* JIT execution requires only Java 17 or GraalVM JDK 17.
+* JIT execution requires only Java 21 or GraalVM JDK 21.
 
 ---
 
