@@ -1,43 +1,57 @@
-# GraalVM POC - Java 17, Gradle, JIT and AOT
+# GraalVM JIT vs AOT POC
 
-This project demonstrates how the same Java 17 application can run in two different modes:
+## Overview
 
-1. **JVM/JIT mode** using the normal IntelliJ or Gradle Run button.
-2. **GraalVM AOT mode** by compiling the same code into a platform-specific native executable.
+This Proof of Concept (POC) demonstrates the difference between Just-In-Time (JIT) compilation and Ahead-Of-Time (AOT) compilation using Java 17, Gradle, and GraalVM Native Image.
 
-The application performs a CPU-heavy workload using prime number calculation, Fibonacci calculation, nested loops, checksum operations, and execution-time measurement.
+The project provides two execution modes:
 
----
+1. **JIT Mode** – Runs on the JVM using GraalVM's Just-In-Time compiler.
+2. **AOT Mode** – Compiles the application into a standalone native executable using GraalVM Native Image.
 
-## Tech Stack
-
-- Java 17
-- Gradle 9
-- GraalVM JDK 17
-- GraalVM Native Image
-- Visual Studio Build Tools on Windows
-- GCC/Clang toolchain on Linux/macOS
+The application executes a CPU-intensive workload consisting of prime number calculations, Fibonacci computations, and nested loop processing to demonstrate the behavior of both compilation approaches under a realistic workload.
 
 ---
 
-## Project Structure
+# Tech Stack
+
+* Java 17
+* Gradle 9
+* GraalVM JDK 17
+* GraalVM Native Image
+* IntelliJ IDEA
+
+---
+
+# Features
+
+* Demonstrates JIT execution using GraalVM JVM
+* Demonstrates AOT compilation using GraalVM Native Image
+* Cross-platform support (Windows, Linux, macOS)
+* CPU-intensive benchmark workload
+* Automatic OS detection for native execution
+* Gradle Wrapper support (No separate Gradle installation required)
+
+---
+
+# Project Structure
 
 ```text
 hello-graalvm/
-├── .gitignore
-├── README.md
+│
 ├── build.gradle
 ├── settings.gradle
+├── README.md
+│
+├── build-and-run-aot.bat
+├── build-and-run-aot.sh
+│
 ├── gradlew
 ├── gradlew.bat
-├── native-build.bat       # Windows native build helper
-├── run-native.bat         # Windows native executable runner
-├── native-build.sh        # Linux/macOS native build helper
-├── run-native.sh          # Linux/macOS native executable runner
+│
 ├── gradle/
 │   └── wrapper/
-│       ├── gradle-wrapper.jar
-│       └── gradle-wrapper.properties
+│
 └── src/
     └── main/
         └── java/
@@ -48,243 +62,227 @@ hello-graalvm/
 
 ---
 
-## Execution Modes
+# Prerequisites
 
-## 1. Run Using JIT
+## For JIT Execution
 
-This is the normal Java execution mode.
+Install:
 
-When another user opens this project in IntelliJ and clicks the green **Run** button near `main()`, the application runs on the JVM using JIT compilation.
+* Java 17 or GraalVM JDK 17
 
-### Run from IntelliJ
+Gradle installation is NOT required because the project uses Gradle Wrapper.
 
-Open:
+---
 
-```text
-src/main/java/com/demo/App.java
+## For AOT Execution
+
+Install:
+
+### Common
+
+* GraalVM JDK 17
+* GraalVM Native Image
+
+### Windows
+
+* Visual Studio Build Tools
+* Desktop Development with C++
+* Windows SDK
+
+### Linux
+
+```bash
+sudo apt install build-essential
 ```
 
-Click the green Run button beside:
+### macOS
 
-```java
-public static void main(String[] args)
+```bash
+xcode-select --install
 ```
 
-### Run from terminal
+---
 
-Windows PowerShell:
+# Running in JIT Mode
+
+This runs the application using the JVM and GraalVM JIT compiler.
+
+## Windows
 
 ```powershell
 .\gradlew.bat run
 ```
 
-Linux/macOS:
+## Linux/macOS
 
 ```bash
 ./gradlew run
 ```
 
-This mode uses:
-
-```text
-Java source code -> bytecode -> JVM -> JIT compilation at runtime -> execution
-```
-
 ---
 
-## 2. Build Using AOT Native Image
+# Running in AOT Mode
 
-This mode compiles the same Java application ahead of time into a native executable.
+This compiles the application into a native executable and then runs it.
 
-This mode uses:
-
-```text
-Java source code -> bytecode -> GraalVM Native Image -> machine code -> native executable
-```
-
----
-
-## Windows Native Build
-
-Prerequisites:
-
-- GraalVM JDK 17 installed
-- `JAVA_HOME` pointing to GraalVM
-- Visual Studio Build Tools installed with **Desktop development with C++**
-
-Build native executable:
+## Windows
 
 ```powershell
-.\native-build.bat
+.\build-and-run-aot.bat
 ```
 
-Run native executable:
+## Linux/macOS
 
-```powershell
-.\run-native.bat
-```
-
-Generated file:
-
-```text
-build\native\nativeCompile\hello-graalvm.exe
+```bash
+chmod +x build-and-run-aot.sh
+./build-and-run-aot.sh
 ```
 
 ---
 
-## Linux/macOS Native Build
+# IntelliJ Run Configurations
 
-Prerequisites:
+## Run JIT
 
-- GraalVM JDK 17 installed
-- Native Image available
-- GCC/Clang toolchain installed
+Type:
 
-Make scripts executable if needed:
-
-```bash
-chmod +x native-build.sh run-native.sh
+```text
+Application
 ```
 
-Build native executable:
+Configuration:
 
-```bash
-./native-build.sh
+```text
+Name: Run JIT
+Main Class: com.demo.App
 ```
 
-Run native executable:
+Execution Flow:
 
-```bash
-./run-native.sh
+```text
+Java Source
+    ↓
+Bytecode
+    ↓
+JVM
+    ↓
+JIT Compilation
+    ↓
+Execution
 ```
 
-Generated file:
+---
+
+## Run AOT
+
+Type:
+
+```text
+Gradle
+```
+
+Configuration:
+
+```text
+Name: Run AOT
+Task: runAot
+```
+
+Execution Flow:
+
+```text
+Java Source
+    ↓
+GraalVM Native Image
+    ↓
+Native Executable
+    ↓
+Execution
+```
+
+---
+
+# OS Detection Logic
+
+The project automatically detects the operating system.
+
+### Windows
+
+```text
+runAot
+    ↓
+build-and-run-aot.bat
+```
+
+### Linux
+
+```text
+runAot
+    ↓
+build-and-run-aot.sh
+```
+
+### macOS
+
+```text
+runAot
+    ↓
+build-and-run-aot.sh
+```
+
+No project path changes are required when cloning the repository to a different system.
+
+---
+
+# Native Executable Location
+
+After successful AOT compilation:
+
+### Windows
+
+```text
+build/native/nativeCompile/hello-graalvm.exe
+```
+
+### Linux/macOS
 
 ```text
 build/native/nativeCompile/hello-graalvm
 ```
 
-Note: Windows generates `.exe`. Linux and macOS generate a native binary without `.exe`.
+---
+
+# Benchmark Workload
+
+The application performs:
+
+* Prime Number Computation
+* Fibonacci Computation
+* Nested Loop Processing
+* Execution Time Measurement
+
+This workload is intentionally CPU-intensive to demonstrate the execution characteristics of both JIT and AOT modes.
 
 ---
 
-## Direct Gradle Commands
+# Benefits of GraalVM Native Image
 
-JIT run:
-
-```bash
-./gradlew run
-```
-
-AOT native build:
-
-```bash
-./gradlew clean nativeCompile
-```
-
-On Windows PowerShell:
-
-```powershell
-.\gradlew.bat run
-```
-
-For native builds on Windows, prefer:
-
-```powershell
-.\native-build.bat
-```
-
-because it initializes the Visual Studio x64 compiler environment automatically.
+* Faster startup time
+* Reduced memory consumption
+* Standalone executable generation
+* No JVM required for execution
+* Better deployment experience for microservices and CLI applications
 
 ---
 
-## Expected Output
+# Notes
 
-The application prints the current execution mode:
-
-```text
-Execution Mode : JVM Mode (JIT compilation enabled at runtime)
-```
-
-or:
-
-```text
-Execution Mode : AOT Native Image (GraalVM compiled executable)
-```
-
-It also prints:
-
-```text
-OS
-Java version
-Java vendor
-Available CPUs
-Final result
-Execution time
-```
+* Gradle is managed internally through Gradle Wrapper.
+* Project paths are fully relative and portable.
+* The project can be cloned and executed from any directory.
+* Only GraalVM Native Image and OS-specific native compiler tools are required for AOT compilation.
+* JIT execution requires only Java 17 or GraalVM JDK 17.
 
 ---
 
-## JIT vs AOT in This Project
 
-| Feature | JIT Run | AOT Native Image |
-|---|---|---|
-| Command | `gradlew run` | `native-build.bat` / `native-build.sh` |
-| Runtime | JVM | Native executable |
-| Compilation | During execution | Before execution |
-| Startup | Slower than native | Very fast |
-| Memory usage | Higher | Lower |
-| Output file | No standalone executable | Platform-specific executable |
-
----
-
-## Important Cross-Platform Note
-
-Native Image does not create the same file for every OS.
-
-| OS | Native output |
-|---|---|
-| Windows | `hello-graalvm.exe` |
-| Linux | `hello-graalvm` |
-| macOS | `hello-graalvm` |
-
-To create a native executable for a specific OS, build the project on that OS or use a matching build environment/container.
-
----
-
-## Why GraalVM Is Beneficial
-
-GraalVM Native Image is useful because it can produce standalone executables with:
-
-- Faster startup time
-- Lower memory usage
-- No JVM requirement on the target machine
-- Better suitability for microservices, serverless functions, CLI tools, and containers
-
-The trade-off is that native image generation takes longer during build time compared to normal JVM execution.
-
----
-
-## Final Recommended Workflow
-
-For daily development:
-
-```text
-Click IntelliJ Run button -> JVM/JIT mode
-```
-
-For native executable testing:
-
-Windows:
-
-```text
-Double-click native-build.bat
-Double-click run-native.bat
-```
-
-Linux/macOS:
-
-```text
-./native-build.sh
-./run-native.sh
-```
